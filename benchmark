@@ -1,0 +1,110 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'bundler/setup'
+require 'benchmark'
+require 'colored'
+require 'thinreports'
+require 'pathname'
+require 'odf-report'
+
+class ReportBenchmark
+  def root
+    Pathname.new(__FILE__).expand_path.dirname
+  end
+end
+
+class ThinReportsBenchmark < ReportBenchmark
+  def hello_world
+    report = Thinreports::Report.new layout: 'thinreports/hello_world'
+
+    # 1st page
+    report.start_new_page
+
+    report.page.item(:hello).value('Hello')
+    report.page.item(:world).value('World!')
+
+    report.generate(filename: 'thinreports/hello_world.pdf')
+  end
+
+  def big_list(count = 300)
+    report = Thinreports::Report.new layout: 'thinreports/big_list'
+    report.start_new_page
+    report.list do |list|
+      # Define the variables used in list.
+      row_count = 0
+      total_row_count = 0
+
+      list.on_page_footer_insert do |page_footer|
+        page_footer.item(:page_footer).value("Page row count: #{row_count}")
+
+        total_row_count += row_count
+        row_count = 0
+      end
+
+      # Dispatched at list-footer insertion.
+      list.on_footer_insert do |footer|
+        footer.item(:footer).value("Row count: #{total_row_count}")
+      end
+
+      count.times do |t|
+        # Internaly #start_new_page() method is called,
+        # the page break automatically.
+        list.add_row detail: "Detail##{t}"
+        row_count += 1
+      end
+    end
+    report.generate(filename: "thinreports/big_list#{count}.pdf")
+  end
+end
+
+class ODFReportBenchmark < ReportBenchmark
+  def hello_world_without_pdf
+    report = ODFReport::Report.new('odf-report/hello_world.odt') do |r|
+      r.add_field :hello, 'Hello'
+      r.add_field :world, 'World'
+    end
+    report.generate('odf-report/temporary-hello_world.odt')
+  end
+
+  def hello_world
+    hello_world_without_pdf
+    `lowriter --headless --convert-to pdf odf-report/temporary-hello_world.odt`
+  end
+
+  def big_list_without_pdf(count = 300)
+    report = ODFReport::Report.new('odf-report/big_list.odt') do |r|
+      r.add_table('ITEMS', (0..(count - 1)).to_a, header: true) do |t|
+        t.add_column(:detail) { |t| "Detail##{t}" }
+      end
+    end
+    report.generate("odf-report/temporary-big_list#{count}.odt")
+  end
+
+  def big_list(count = 300)
+    big_list_without_pdf(count)
+    `lowriter --headless --convert-to pdf odf-report/temporary-big_list#{count}.odt`
+  end
+end
+
+COUNT = 1
+
+puts
+puts '== ODF Report =='.ljust(80, '=').yellow
+puts
+Benchmark.bmbm(30) do |x|
+  # x.report('hello_world') { COUNT.times { ODFReportBenchmark.new.hello_world } }
+  x.report('hello_world') { COUNT.times { ODFReportBenchmark.new.hello_world } }
+  x.report('big_list') { COUNT.times { ODFReportBenchmark.new.big_list } }
+  x.report('very_big_list') { COUNT.times { ODFReportBenchmark.new.big_list(3_000) } }
+  x.report('huge_list') { COUNT.times { ODFReportBenchmark.new.big_list(10_000) } }
+end
+
+puts
+puts '== ThinReports =='.ljust(80, '=').yellow
+puts
+Benchmark.bmbm(30) do |x|
+  x.report('hello_world') { COUNT.times { ThinReportsBenchmark.new.hello_world } }
+  x.report('big_list') { COUNT.times { ThinReportsBenchmark.new.big_list } }
+  x.report('very_big_list') { COUNT.times { ThinReportsBenchmark.new.big_list(3_000) } }
+  x.report('huge_list') { COUNT.times { ThinReportsBenchmark.new.big_list(10_000) } }
+end

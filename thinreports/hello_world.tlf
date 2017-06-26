@@ -1,0 +1,89 @@
+{
+  "version": "0.9.1",
+  "items": [
+    {
+      "id": "hello",
+      "type": "text-block",
+      "display": true,
+      "description": "",
+      "x": 56.7,
+      "y": 56.7,
+      "width": 481.8,
+      "height": 41,
+      "style": {
+        "font-family": [
+          "Helvetica"
+        ],
+        "font-size": 36,
+        "color": "#000000",
+        "text-align": "left",
+        "vertical-align": "top",
+        "line-height": "",
+        "line-height-ratio": "",
+        "letter-spacing": "",
+        "font-style": [
+          "bold",
+          "italic"
+        ],
+        "overflow": "fit",
+        "word-wrap": "break-word"
+      },
+      "reference-id": "",
+      "value": "",
+      "multiple-line": false,
+      "format": {
+        "base": "",
+        "type": ""
+      }
+    },
+    {
+      "id": "world",
+      "type": "text-block",
+      "display": true,
+      "description": "",
+      "x": 56.7,
+      "y": 141.7,
+      "width": 481.8,
+      "height": 41,
+      "style": {
+        "font-family": [
+          "Helvetica"
+        ],
+        "font-size": 36,
+        "color": "#000000",
+        "text-align": "right",
+        "vertical-align": "top",
+        "line-height": "",
+        "line-height-ratio": "",
+        "letter-spacing": "",
+        "font-style": [
+          "bold",
+          "italic"
+        ],
+        "overflow": "fit",
+        "word-wrap": "break-word"
+      },
+      "reference-id": "",
+      "value": "",
+      "multiple-line": false,
+      "format": {
+        "base": "",
+        "type": ""
+      }
+    }
+  ],
+  "state": {
+    "layout-guides": []
+  },
+  "title": "Hello World!",
+  "report": {
+    "paper-type": "A4",
+    "orientation": "portrait",
+    "margin": [
+      28.3,
+      28.3,
+      28.3,
+      28.3
+    ]
+  }
+}
